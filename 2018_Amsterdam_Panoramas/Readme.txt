@@ -1,1 +1,1 @@
-Script to download panromas from the amsterdam website
+Script to download panromas from the amsterdam website, based on shapefiles
