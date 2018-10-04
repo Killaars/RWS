@@ -11,10 +11,10 @@ globalPath='/flashblade/lars_data/2018_panorama_amsterdam/'
 fileDir = os.path.join(globalPath,'Target')
 labelDir = os.path.join(globalPath,'labeled')
 outputDir = os.path.join(globalPath,'labeled_by_model')
-modelFile = os.path.join(globalPath,'model','model_reflect_75images_softmax0')
+modelFile = os.path.join(globalPath,'model','50_drop01_filter_64_256_512_0')
 
-xsize=512
-ysize=1024
+xsize=256
+ysize=512
 
 labelNames = []
 
@@ -30,10 +30,10 @@ for fileName in fileNames:
 			labelNames=np.append(labelNames,labelName)
 
 # Pick n pictures to label
-n=10
+n=20
 list_of_random_items = random.sample(list(labelNames), n)
 print(list_of_random_items)
-
+list_of_random_items=['Foto_596180_4.9291121678783_52.4111631089982.txt']
 for file in list_of_random_items:
 	print('file',file)
 	filePath=os.path.join(fileDir,file)
@@ -46,8 +46,19 @@ for file in list_of_random_items:
 	# Let model predict the labels
 	model=load_model(modelFile)
 	output = model.predict(ims)
-	
+	print(output)	
 	# Transfer the output to correct dimensions and write to file
 	output=output[0,:,:,:]
-	output=np.argmax(output,axis=2)
+#	print(np.shape(output))
+	test=output[0,0,:]
+#	print(test,np.argmax(test))
+	output=np.argmax(output,axis=-1)
+#	print(output)
+	print(sum(output.flatten()==0))
+	print(sum(output.flatten()==1))
+	print(sum(output.flatten()==2))
+	print(sum(output.flatten()==3))
+	print(sum(output.flatten()==4))
+	#output=resize(output,(1000,2000))
+#	print(output)
 	np.savetxt(os.path.join(outputDir,file),output,fmt='%.1d',delimiter=',')
