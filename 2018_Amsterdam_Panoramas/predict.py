@@ -5,13 +5,15 @@ import cv2
 from skimage.transform import resize
 import numpy as np
 import os,sys
+sys.path.insert(0, '/flashblade/lars_data/2018_panorama_amsterdam/python_scripts')
+from loss_with_weights import weighted_categorical_crossentropy
 
 # Set global variables
 globalPath='/flashblade/lars_data/2018_panorama_amsterdam/'
 fileDir = os.path.join(globalPath,'Target')
 labelDir = os.path.join(globalPath,'labeled')
 outputDir = os.path.join(globalPath,'labeled_by_model')
-modelFile = os.path.join(globalPath,'model','50_drop01_filter_64_256_512_0')
+modelFile = os.path.join(globalPath,'model','50_drop01_filter_64_weights_256_512_')
 
 xsize=256
 ysize=512
@@ -44,7 +46,7 @@ for file in list_of_random_items:
 	ims = np.expand_dims(ims, axis=0)
 
 	# Let model predict the labels
-	model=load_model(modelFile)
+	model=load_model(modelFile, custom_objects={'weighted_categorical_crossentropy': weighted_categorical_crossentropy})
 	output = model.predict(ims)
 	print(output)	
 	# Transfer the output to correct dimensions and write to file

@@ -10,17 +10,19 @@ import cv2
 from skimage.transform import resize
 from itertools import compress
 import matplotlib.pyplot as plt
+sys.path.insert(0, '/flashblade/lars_data/2018_panorama_amsterdam/python_scripts')
+from loss_with_weights import weighted_categorical_crossentropy
 
 
 #os.chdir('/home/daniel/R/landuse/Sentinel_models')
 
-epochs = 50
+epochs = 100
 classes = 5 # Remember: 'not labeled' is also a class!
 batch_size = 1
 xsize=256
 ysize=512
 model_name = 'model/50_drop01_filter_64_weights_'+str(xsize)+'_'+str(ysize)+'_'
-save_each = 50
+save_each = 100
 
 laptop_path = Path('/Users/datalab1/Lars/Panorama_Amsterdam/')
 dgx_path=Path('/flashblade/lars_data/2018_panorama_amsterdam')
@@ -193,7 +195,8 @@ output = keras.layers.convolutional.Conv2D( filters=classes, kernel_size= (3,3),
 model = keras.models.Model(inputs = input_im, outputs = output)
 
 opt = keras.optimizers.adam( lr= 0.0001 , decay = 0,  clipnorm = 0.3 )
-model.compile(loss="categorical_crossentropy", optimizer=opt, metrics = ["accuracy"])
+weights = np.ones((5,))
+model.compile(loss=weighted_categorical_crossentropy, optimizer=opt, metrics = ["accuracy"])
 
 ##built network - 5 pooling
 #
@@ -257,16 +260,12 @@ model.compile(loss="categorical_crossentropy", optimizer=opt, metrics = ["accura
 # model = keras.models.load_model( path +'model/model_rotations_3')
 
 
-#train -- with saving every n epochs
-for epoch in range(epochs):
-    print(epoch)
-#    model.fit_generator(generator = generator(), steps_per_epoch = len(files_labels), epochs = 1, class_weight=class_weight )
-    model.fit_generator(generator = generator(), steps_per_epoch = len(files_labels), epochs = 1)
+model.fit_generator(generator = generator(), steps_per_epoch = len(files_labels), epochs = epochs)
 
-    if epoch % save_each == 0:
-        name = path / (str(model_name)+str(epoch))
-        model.save(name)
-        print('model name = ',model_name)
+
+name = path / (str(model_name))
+model.save(name)
+print('model name = ',model_name)
 
 ## train -- with saving only at the end
 #model.fit_generator(generator = generator(), steps_per_epoch = len(files_labels), epochs = epochs )
