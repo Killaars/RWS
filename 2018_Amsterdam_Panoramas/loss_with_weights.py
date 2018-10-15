@@ -93,11 +93,11 @@ def weighted_categorical_crossentropy(y_true,y_pred):
         loss = weighted_categorical_crossentropy(weights)
         model.compile(loss=loss,optimizer='adam')
     """
-    other = 15 
-    weights = [0.5,20,other,10,other]
-#    weights = np.ones((5,)) # For no class weights)
+    other = 9000
+    weights = [0.1,25,other,0.3,other]
+    #weights = [1/128217,1/1220,1/40,1/1595,1/40] Gives too much class 1 and too much class 2, even though there is no class 2 in the testimage
+
     weights = K.variable(weights)
-        
     # scale predictions so that the class probas of each sample sum to 1
     y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
     # clip to prevent NaN's and Inf's

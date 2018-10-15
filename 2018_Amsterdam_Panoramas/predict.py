@@ -13,7 +13,7 @@ globalPath='/flashblade/lars_data/2018_panorama_amsterdam/'
 fileDir = os.path.join(globalPath,'Target')
 labelDir = os.path.join(globalPath,'labeled')
 outputDir = os.path.join(globalPath,'labeled_by_model')
-modelFile = os.path.join(globalPath,'model','50_drop01_filter_64_weights_256_512_')
+modelFile = os.path.join(globalPath,'model','75pics_drop01_filter_64_lr0005_256_512_epoch0100')
 
 xsize=256
 ysize=512
@@ -36,6 +36,8 @@ n=20
 list_of_random_items = random.sample(list(labelNames), n)
 print(list_of_random_items)
 list_of_random_items=['Foto_596180_4.9291121678783_52.4111631089982.txt']
+#list_of_random_items=['Foto_412949_4.84737765922196_52.3973588044208.txt']
+
 for file in list_of_random_items:
 	print('file',file)
 	filePath=os.path.join(fileDir,file)
@@ -47,20 +49,23 @@ for file in list_of_random_items:
 
 	# Let model predict the labels
 	model=load_model(modelFile, custom_objects={'weighted_categorical_crossentropy': weighted_categorical_crossentropy})
+#	model=load_model(modelFile)
 	output = model.predict(ims)
 	print(output)	
 	# Transfer the output to correct dimensions and write to file
 	output=output[0,:,:,:]
 #	print(np.shape(output))
 	test=output[0,0,:]
+	np.savetxt(os.path.join(outputDir,'dim0.txt' ),output[:,:,0],delimiter=',')	
+	np.savetxt(os.path.join(outputDir,'dim1.txt' ),output[:,:,1],delimiter=',')	
+	np.savetxt(os.path.join(outputDir,'dim2.txt' ),output[:,:,2],delimiter=',')	
+	np.savetxt(os.path.join(outputDir,'dim3.txt' ),output[:,:,3],delimiter=',')	
+	np.savetxt(os.path.join(outputDir,'dim4.txt' ),output[:,:,4],delimiter=',')	
 #	print(test,np.argmax(test))
 	output=np.argmax(output,axis=-1)
 #	print(output)
-	print(sum(output.flatten()==0))
-	print(sum(output.flatten()==1))
-	print(sum(output.flatten()==2))
-	print(sum(output.flatten()==3))
-	print(sum(output.flatten()==4))
+	print(np.unique(output,return_counts=True))
 	#output=resize(output,(1000,2000))
 #	print(output)
-	np.savetxt(os.path.join(outputDir,file),output,fmt='%.1d',delimiter=',')
+	np.savetxt(os.path.join(outputDir,file),output,fmt='%.1d',delimiter=',')	
+
